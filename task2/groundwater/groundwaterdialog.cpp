@@ -9,32 +9,52 @@ GroundwaterDialog::GroundwaterDialog(GroundwaterModel* model, QWidget *parent)
 {
     setWindowTitle(m_model->isMSE() ? "MSE Dialog" : "Other Walls Dialog");
 
-    // Tạo widget tùy chỉnh
-    m_widget = new GroundwaterWidget(m_model, this);
+    // Tạo widget tùy chỉnh dựa trên isMSE
+    if (m_model->isMSE()) {
+        m_widget = new MSEGroundwaterWidget(m_model, this);
+    } else {
+        m_widget = new OtherWallsGroundwaterWidget(m_model, this);
+    }
 
-    // Thêm widget vào layout của dialog
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_widget);
     mainLayout->addStretch();
 
     // Kết nối tín hiệu từ widget đến các slot của dialog
-    connect(m_widget, &GroundwaterWidget::includeWaterTableToggled, this, &GroundwaterDialog::onIncludeWaterTableToggled);
-    connect(m_widget, &GroundwaterWidget::constantToggled, this, &GroundwaterDialog::onConstantToggled);
-    connect(m_widget, &GroundwaterWidget::differentialToggled, this, &GroundwaterDialog::onDifferentialToggled);
-    connect(m_widget, &GroundwaterWidget::applyToAllToggled, this, &GroundwaterDialog::applyToAllSectionsPlaceholder);
+    if (m_model->isMSE()) {
+        MSEGroundwaterWidget* mseWidget = qobject_cast<MSEGroundwaterWidget*>(m_widget);
+        connect(mseWidget, &MSEGroundwaterWidget::includeWaterTableToggled, this, &GroundwaterDialog::onIncludeWaterTableToggled);
+        connect(mseWidget, &MSEGroundwaterWidget::constantToggled, this, &GroundwaterDialog::onConstantToggled);
+        connect(mseWidget, &MSEGroundwaterWidget::differentialToggled, this, &GroundwaterDialog::onDifferentialToggled);
+        connect(mseWidget, &MSEGroundwaterWidget::applyToAllToggled, this, &GroundwaterDialog::applyToAllSectionsPlaceholder);
+    } else {
+        OtherWallsGroundwaterWidget* otherWidget = qobject_cast<OtherWallsGroundwaterWidget*>(m_widget);
+        connect(otherWidget, &OtherWallsGroundwaterWidget::includeWaterTableToggled, this, &GroundwaterDialog::onIncludeWaterTableToggled);
+        connect(otherWidget, &OtherWallsGroundwaterWidget::constantToggled, this, &GroundwaterDialog::onConstantToggled);
+        connect(otherWidget, &OtherWallsGroundwaterWidget::differentialToggled, this, &GroundwaterDialog::onDifferentialToggled);
+        connect(otherWidget, &OtherWallsGroundwaterWidget::applyToAllToggled, this, &GroundwaterDialog::applyToAllSectionsPlaceholder);
+    }
 }
 
 void GroundwaterDialog::onIncludeWaterTableToggled(bool checked)
 {
     m_model->setIncludeWaterTable(checked);
-    m_widget->updateControls();
+    if (m_model->isMSE()) {
+        qobject_cast<MSEGroundwaterWidget*>(m_widget)->updateControls();
+    } else {
+        qobject_cast<OtherWallsGroundwaterWidget*>(m_widget)->updateControls();
+    }
 }
 
 void GroundwaterDialog::onConstantToggled(bool checked)
 {
     if (checked) {
         m_model->setIsConstant(true);
-        m_widget->updateControls();
+        if (m_model->isMSE()) {
+            qobject_cast<MSEGroundwaterWidget*>(m_widget)->updateControls();
+        } else {
+            qobject_cast<OtherWallsGroundwaterWidget*>(m_widget)->updateControls();
+        }
     }
 }
 
@@ -42,7 +62,11 @@ void GroundwaterDialog::onDifferentialToggled(bool checked)
 {
     if (checked) {
         m_model->setIsConstant(false);
-        m_widget->updateControls();
+        if (m_model->isMSE()) {
+            qobject_cast<MSEGroundwaterWidget*>(m_widget)->updateControls();
+        } else {
+            qobject_cast<OtherWallsGroundwaterWidget*>(m_widget)->updateControls();
+        }
     }
 }
 
@@ -50,18 +74,24 @@ void GroundwaterDialog::saveModelState()
 {
     bool ok;
     double value;
+    QLineEdit* waterElevationEdit = m_widget->findChild<QLineEdit*>("waterElevationEdit");
+    QLineEdit* backslopeElevationEdit = m_widget->findChild<QLineEdit*>("backslopeWaterElevationEdit");
+    QLineEdit* frontFaceElevationEdit = m_widget->findChild<QLineEdit*>("frontFaceWaterElevationEdit");
+    QCheckBox* applyToAllCheck = m_widget->findChild<QCheckBox*>("applyToAllCheck");
 
-    // Lấy giá trị từ các QLineEdit trong widget
-    value = m_widget->findChild<QLineEdit*>("waterElevationEdit")->text().toDouble(&ok);
+    value = waterElevationEdit->text().toDouble(&ok);
     if (ok) m_model->setWaterElevation(value);
-    value = m_widget->findChild<QLineEdit*>("backslopeWaterElevationEdit")->text().toDouble(&ok);
+    value = backslopeElevationEdit->text().toDouble(&ok);
     if (ok) m_model->setBackslopeWaterElevation(value);
-    value = m_widget->findChild<QLineEdit*>("frontFaceWaterElevationEdit")->text().toDouble(&ok);
+    value = frontFaceElevationEdit->text().toDouble(&ok);
     if (ok) m_model->setFrontFaceWaterElevation(value);
 
-    // Lấy trạng thái từ các QCheckBox trong widget
-    m_model->setInfiltratesReinforcedZone(m_widget->findChild<QCheckBox*>("infiltratesCheck")->isChecked());
-    m_model->setApplyToAllSections(m_widget->findChild<QCheckBox*>("applyToAllCheck")->isChecked());
+    if (m_model->isMSE()) {
+        QCheckBox* infiltratesCheck = m_widget->findChild<QCheckBox*>("infiltratesCheck");
+        m_model->setInfiltratesReinforcedZone(infiltratesCheck->isChecked());
+    }
+
+    m_model->setApplyToAllSections(applyToAllCheck->isChecked());
 }
 
 void GroundwaterDialog::applyToAllSectionsPlaceholder(bool checked)

@@ -20,13 +20,17 @@ SOURCES += \
     groundwatermodel.cpp \
     groundwaterwidget.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    msegroundwaterwidget.cpp \
+    otherwallsgroundwaterwidget.cpp
 
 HEADERS += \
     groundwaterdialog.h \
     groundwatermodel.h \
     groundwaterwidget.h \
-    mainwindow.h
+    mainwindow.h \
+    msegroundwaterwidget.h \
+    otherwallsgroundwaterwidget.h
 
 FORMS += \
     mainwindow.ui
