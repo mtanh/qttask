@@ -18,7 +18,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     groundwaterdialog.cpp \
     groundwatermodel.cpp \
-    groundwaterwidget.cpp \
     main.cpp \
     mainwindow.cpp \
     msegroundwaterwidget.cpp \
@@ -27,7 +26,6 @@ SOURCES += \
 HEADERS += \
     groundwaterdialog.h \
     groundwatermodel.h \
-    groundwaterwidget.h \
     mainwindow.h \
     msegroundwaterwidget.h \
     otherwallsgroundwaterwidget.h
