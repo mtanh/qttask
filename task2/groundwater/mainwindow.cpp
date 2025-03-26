@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-//#include "ui_mainwindow.h"
 #include <QPushButton>
 #include <QHBoxLayout>
 #include "groundwaterdialog.h"
@@ -32,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Margins and size
     layout->setContentsMargins(10, 10, 10, 10);
     resize(300, 100);
-
 }
 
 MainWindow::~MainWindow()

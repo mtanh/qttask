@@ -2,11 +2,8 @@
 #define GROUNDWATERDIALOG_H
 
 #include <QDialog>
-#include <QGroupBox>
-#include <QRadioButton>
-#include <QLineEdit>
-#include <QCheckBox>
 #include "groundwatermodel.h"
+#include "groundwaterwidget.h"
 
 class GroundwaterDialog : public QDialog
 {
@@ -18,24 +15,13 @@ private slots:
     void onIncludeWaterTableToggled(bool checked);
     void onConstantToggled(bool checked);
     void onDifferentialToggled(bool checked);
-    void applyToAllSectionsPlaceholder();
+    void applyToAllSectionsPlaceholder(bool checked);
 
 private:
-    void setupUi();
-    void updateControls();
     void saveModelState();
 
     GroundwaterModel* m_model;
-
-    QGroupBox* m_waterTableGroup;
-    QCheckBox* m_includeWaterTableCheck;
-    QRadioButton* m_constantRadio;
-    QRadioButton* m_differentialRadio;
-    QLineEdit* m_waterElevationEdit;
-    QLineEdit* m_backslopeWaterElevationEdit;
-    QLineEdit* m_frontFaceWaterElevationEdit;
-    QCheckBox* m_infiltratesCheck;
-    QCheckBox* m_applyToAllCheck;
+    GroundwaterWidget* m_widget;
 };
 
 #endif // GROUNDWATERDIALOG_H
